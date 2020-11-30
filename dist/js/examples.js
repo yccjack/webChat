@@ -1,9 +1,52 @@
 $(function () {
-
     /**
      * Some examples of how to use features.
      *
      **/
+    var socket;
+    if (!window.WebSocket) {
+        window.WebSocket = window.MozWebSocket;
+    }
+    if (window.WebSocket) {
+        socket = new WebSocket("ws://localhost:8082/ws");
+        socket.onmessage = function (event) {
+            let data = event.data;
+            if (data == null) {
+                return false;
+            }
+            let parse = JSON.parse(data);
+            let method = parse.method;
+            let name = parse.name;
+            if (method == "init") {
+                let chatList = parse.chatList;
+                for (let i = 0; i < chatList.length; i++) {
+                    SohoExamle.List.init(chatList, "How are you!")
+                }
+
+            }
+            SohoExamle.Message.add();
+        };
+        socket.onopen = function (event) {
+            console.log("Web Socket opened!");
+
+        };
+        socket.onclose = function (event) {
+            console.log("Web Socket closed")
+        };
+    } else {
+        alert("Your browser does not support Web Socket.");
+    }
+
+    function send(message) {
+        if (!window.WebSocket) {
+            return;
+        }
+        if (socket.readyState == WebSocket.OPEN) {
+            socket.send(message);
+        } else {
+            alert("The socket is not open.");
+        }
+    }
 
     var SohoExamle = {
         Message: {
@@ -38,6 +81,26 @@ $(function () {
                     }, 200);
                 }
             }
+        },
+        List: {
+            init: function (name, lastestMsg) {
+                var list_body = $('.layout .content .sidebar-group .sidebar-body ul');
+                $('.layout .content .sidebar-group .sidebar-body ul').append(`  <li class="list-group-item">
+                            <figure class="avatar avatar-state-success">
+                                <img src="./dist/media/img/man_avatar1.jpg" class="rounded-circle" alt="image">
+                            </figure>
+                            <div class="users-list-body">
+                                <div>
+                                    <h5 class="text-primary">name</h5>
+                                    <p>lastestMsg</p>
+                                </div>
+                                <div class="users-list-action">
+                                    <div class="new-message-count">3</div>
+                                    <small class="text-primary">03:41 PM</small>
+                                </div>
+                            </div>
+                        </li>`);
+            }
         }
     };
 
@@ -59,10 +122,6 @@ $(function () {
         if (message) {
             SohoExamle.Message.add(message, 'outgoing-message');
             input.val('');
-
-            setTimeout(function () {
-                SohoExamle.Message.add();
-            }, 1000);
         } else {
             input.focus();
         }
