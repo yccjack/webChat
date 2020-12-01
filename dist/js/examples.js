@@ -3,6 +3,7 @@ $(function () {
      * Some examples of how to use features.
      *
      **/
+    var selfName;
     var socket;
     if (!window.WebSocket) {
         window.WebSocket = window.MozWebSocket;
@@ -16,15 +17,23 @@ $(function () {
             }
             let parse = JSON.parse(data);
             let method = parse.method;
-            let name = parse.name;
+            let personInfo = parse.addChatPerson;
             if (method == "init") {
                 let chatList = parse.chatList;
                 for (let i = 0; i < chatList.length; i++) {
                     SohoExamle.List.init(chatList, "How are you!")
                 }
 
+            }else if(method=="add"){
+                SohoExamle.List.init(personInfo, "How are you!")
+            }else if(method=="remove"){
+                SohoExamle.List.remove(personInfo, "How are you!")
+            }else if(method=="groupChat"){
+                let chatMsg = parse.sendMsg.chatMsg;
+                let sendTime = parse.sendMsg.sendTime;
+                SohoExamle.Message.add(chatMsg,"",sendTime);
             }
-            SohoExamle.Message.add();
+
         };
         socket.onopen = function (event) {
             console.log("Web Socket opened!");
@@ -50,7 +59,7 @@ $(function () {
 
     var SohoExamle = {
         Message: {
-            add: function (message, type) {
+            add: function (message, type,sendTime) {
                 var chat_body = $('.layout .content .chat .chat-body');
                 if (chat_body.length > 0) {
 
@@ -64,7 +73,7 @@ $(function () {
                             </figure>
                             <div>
                                 <h5>` + (type == 'outgoing-message' ? 'Mirabelle Tow' : 'Byrom Guittet') + `</h5>
-                                <div class="time">14:50 PM ` + (type == 'outgoing-message' ? '<i class="ti-check"></i>' : '') + `</div>
+                                <div class="time">`+sendTime+` ` + (type == 'outgoing-message' ? '<i class="ti-check"></i>' : '') + `</div>
                             </div>
                         </div>
                         <div class="message-content">
@@ -83,9 +92,8 @@ $(function () {
             }
         },
         List: {
-            init: function (name, lastestMsg) {
-                var list_body = $('.layout .content .sidebar-group .sidebar-body ul');
-                $('.layout .content .sidebar-group .sidebar-body ul').append(`  <li class="list-group-item">
+            init: function (name, lastestMsg,ip) {
+                $('.layout .content .sidebar-group .sidebar-body ul').append(`  <li  id="`+ip+`" class="list-group-item">
                             <figure class="avatar avatar-state-success">
                                 <img src="./dist/media/img/man_avatar1.jpg" class="rounded-circle" alt="image">
                             </figure>
@@ -100,6 +108,12 @@ $(function () {
                                 </div>
                             </div>
                         </li>`);
+            },
+            remove: function (ip) {
+                $('#'+ip+'').remove();
+            },
+            add: function (name, lastestMsg) {
+
             }
         }
     };
@@ -120,11 +134,13 @@ $(function () {
         message = $.trim(message);
 
         if (message) {
-            SohoExamle.Message.add(message, 'outgoing-message');
+            var time = new Date();
+            SohoExamle.Message.add(message, 'outgoing-message',time.toLocaleTimeString());
             input.val('');
         } else {
             input.focus();
         }
+        send(message);
     });
 
     $(document).on('click', '.layout .content .sidebar-group .sidebar .list-group-item', function () {
