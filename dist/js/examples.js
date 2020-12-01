@@ -18,20 +18,22 @@ $(function () {
             let parse = JSON.parse(data);
             let method = parse.method;
             let personInfo = parse.addChatPerson;
+            let addChatRemote = parse.addChatRemote;
             if (method == "init") {
+                selfName=personInfo;
                 let chatList = parse.chatList;
-                for (let i = 0; i < chatList.length; i++) {
-                    SohoExamle.List.init(chatList, "How are you!")
+                for(let item in chatList){
+                    SohoExamle.List.init(chatList[item], "How are you!",item)
                 }
-
             }else if(method=="add"){
-                SohoExamle.List.init(personInfo, "How are you!")
+                SohoExamle.List.init(personInfo, "How are you!",addChatRemote)
             }else if(method=="remove"){
-                SohoExamle.List.remove(personInfo, "How are you!")
+                SohoExamle.List.remove(addChatRemote)
             }else if(method=="groupChat"){
                 let chatMsg = parse.sendMsg.chatMsg;
                 let sendTime = parse.sendMsg.sendTime;
-                SohoExamle.Message.add(chatMsg,"",sendTime);
+                let name =  parse.sendMsg.name;
+                SohoExamle.Message.add(chatMsg,"",sendTime,name);
             }
 
         };
@@ -59,7 +61,7 @@ $(function () {
 
     var SohoExamle = {
         Message: {
-            add: function (message, type,sendTime) {
+            add: function (message, type,sendTime,personInfo) {
                 var chat_body = $('.layout .content .chat .chat-body');
                 if (chat_body.length > 0) {
 
@@ -72,7 +74,7 @@ $(function () {
                                 <img src="./dist/media/img/` + (type == 'outgoing-message' ? 'women_avatar5.jpg' : 'man_avatar3.jpg') + `" class="rounded-circle">
                             </figure>
                             <div>
-                                <h5>` + (type == 'outgoing-message' ? 'Mirabelle Tow' : 'Byrom Guittet') + `</h5>
+                                <h5>` + (type == 'outgoing-message' ? ''+personInfo+'' : ''+personInfo+'') + `</h5>
                                 <div class="time">`+sendTime+` ` + (type == 'outgoing-message' ? '<i class="ti-check"></i>' : '') + `</div>
                             </div>
                         </div>
@@ -93,24 +95,26 @@ $(function () {
         },
         List: {
             init: function (name, lastestMsg,ip) {
-                $('.layout .content .sidebar-group .sidebar-body ul').append(`  <li  id="`+ip+`" class="list-group-item">
+                var time = new Date();
+                $('.layout .content .sidebar-group .sidebar-body ul').append(`  <li remote="`+ip+`" class=" list-group-item">
                             <figure class="avatar avatar-state-success">
                                 <img src="./dist/media/img/man_avatar1.jpg" class="rounded-circle" alt="image">
                             </figure>
                             <div class="users-list-body">
                                 <div>
-                                    <h5 class="text-primary">name</h5>
-                                    <p>lastestMsg</p>
+                                    <h5 class="text-primary">`+name+`</h5>
+                                    <p>`+lastestMsg+`</p>
                                 </div>
                                 <div class="users-list-action">
                                     <div class="new-message-count">3</div>
-                                    <small class="text-primary">03:41 PM</small>
+                                    <small class="text-primary">`+time.toLocaleString('chinese', { hour12: false })+`</small>
                                 </div>
                             </div>
                         </li>`);
             },
             remove: function (ip) {
-                $('#'+ip+'').remove();
+                let $1 = $('.layout .content .sidebar-group .sidebar-body ul li[remote="'+ip+'"]');
+                $1.remove();
             },
             add: function (name, lastestMsg) {
 
@@ -135,7 +139,7 @@ $(function () {
 
         if (message) {
             var time = new Date();
-            SohoExamle.Message.add(message, 'outgoing-message',time.toLocaleTimeString());
+            SohoExamle.Message.add(message, 'outgoing-message',time.toLocaleTimeString('chinese', { hour12: false }),selfName);
             input.val('');
         } else {
             input.focus();
