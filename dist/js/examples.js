@@ -78,12 +78,15 @@ $(function () {
     var SohoExamle = {
         Message: {
             add: function (message, type, sendTime, personInfo) {
+
                 var chat_body = $('.layout .content .chat .chat-body');
                 if (chat_body.length > 0) {
 
                     type = type ? type : '';
                     message = message ? message : 'I did not understand what you said!';
+                    if(message.trim().startsWith("http://")||message.trim().startsWith("https://")){
 
+                    }
                     $('.layout .content .chat .chat-body .messages').append(`<div class="message-item ` + type + `">
                         <div class="message-avatar">
                             <figure class="avatar">
@@ -95,7 +98,9 @@ $(function () {
                             </div>
                         </div>
                         <div class="message-content">
-                            ` + message + `
+                   
+                        ` + ((message.trim().startsWith("http://")||message.trim().startsWith("https://"))?
+                            '<a href="'+message+'" style="color:#00FA9A" target="_blank">'+message+'':  message  )+`
                         </div>
                     </div>`);
 
