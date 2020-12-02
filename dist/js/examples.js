@@ -3,13 +3,24 @@ $(function () {
      * Some examples of how to use features.
      *
      **/
+    // var headImg = new arr();
+    // headImg[0]= "man_avatar1.jpg";
+    // headImg[1]= "man_avatar2.jpg";
+    // headImg[2]= "man_avatar3.jpg";
+    // headImg[3]= "man_avatar4.jpg";
+    // headImg[4]= "man_avatar5.jpg";
+    // headImg[5]= "women_avatar1.jpg";
+    // headImg[6]= "women_avatar2.jpg";
+    // headImg[7]= "women_avatar3.jpg";
+    // headImg[8]= "women_avatar4.jpg";
+    // headImg[9]= "women_avatar5.jpg";
     var selfName;
     var socket;
     if (!window.WebSocket) {
         window.WebSocket = window.MozWebSocket;
     }
     if (window.WebSocket) {
-        socket = new WebSocket("ws://localhost:8082/ws");
+        socket = new WebSocket("ws://gschaos.club:8082/ws");
         socket.onmessage = function (event) {
             let data = event.data;
             if (data == null) {
@@ -20,20 +31,25 @@ $(function () {
             let personInfo = parse.addChatPerson;
             let addChatRemote = parse.addChatRemote;
             if (method == "init") {
-                selfName=personInfo;
+                selfName = personInfo;
                 let chatList = parse.chatList;
-                for(let item in chatList){
-                    SohoExamle.List.init(chatList[item], "How are you!",item)
+                for (let item in chatList) {
+                    if(chatList[item] ==personInfo){
+                        SohoExamle.List.init(chatList[item], "How are you!", item,"open-chat")
+                    }else {
+                        SohoExamle.List.init(chatList[item], "How are you!", item)
+                    }
+
                 }
-            }else if(method=="add"){
-                SohoExamle.List.init(personInfo, "How are you!",addChatRemote)
-            }else if(method=="remove"){
+            } else if (method == "add") {
+                SohoExamle.List.init(personInfo, "How are you!", addChatRemote)
+            } else if (method == "remove") {
                 SohoExamle.List.remove(addChatRemote)
-            }else if(method=="groupChat"){
+            } else if (method == "groupChat") {
                 let chatMsg = parse.sendMsg.chatMsg;
                 let sendTime = parse.sendMsg.sendTime;
-                let name =  parse.sendMsg.name;
-                SohoExamle.Message.add(chatMsg,"",sendTime,name);
+                let name = parse.sendMsg.name;
+                SohoExamle.Message.add(chatMsg, "", sendTime, name);
             }
 
         };
@@ -61,7 +77,7 @@ $(function () {
 
     var SohoExamle = {
         Message: {
-            add: function (message, type,sendTime,personInfo) {
+            add: function (message, type, sendTime, personInfo) {
                 var chat_body = $('.layout .content .chat .chat-body');
                 if (chat_body.length > 0) {
 
@@ -74,8 +90,8 @@ $(function () {
                                 <img src="./dist/media/img/` + (type == 'outgoing-message' ? 'women_avatar5.jpg' : 'man_avatar3.jpg') + `" class="rounded-circle">
                             </figure>
                             <div>
-                                <h5>` + (type == 'outgoing-message' ? ''+personInfo+'' : ''+personInfo+'') + `</h5>
-                                <div class="time">`+sendTime+` ` + (type == 'outgoing-message' ? '<i class="ti-check"></i>' : '') + `</div>
+                                <h5>` + (type == 'outgoing-message' ? '' + personInfo + '' : '' + personInfo + '') + `</h5>
+                                <div class="time">` + sendTime + ` ` + (type == 'outgoing-message' ? '<i class="ti-check"></i>' : '') + `</div>
                             </div>
                         </div>
                         <div class="message-content">
@@ -94,26 +110,27 @@ $(function () {
             }
         },
         List: {
-            init: function (name, lastestMsg,ip) {
+            init: function (name, lastestMsg, ip, open) {
                 var time = new Date();
-                $('.layout .content .sidebar-group .sidebar-body ul').append(`  <li remote="`+ip+`" class=" list-group-item">
+                open = open ? open : '';
+                $('.layout .content .sidebar-group .sidebar-body ul').append(`  <li remote="` + ip + `" class=" list-group-item ` + open + `">
                             <figure class="avatar avatar-state-success">
                                 <img src="./dist/media/img/man_avatar1.jpg" class="rounded-circle" alt="image">
                             </figure>
                             <div class="users-list-body">
                                 <div>
-                                    <h5 class="text-primary">`+name+`</h5>
-                                    <p>`+lastestMsg+`</p>
+                                    <h5 class="text-primary">` + name + `</h5>
+                                    <p>` + lastestMsg + `</p>
                                 </div>
                                 <div class="users-list-action">
                                     <div class="new-message-count">3</div>
-                                    <small class="text-primary">`+time.toLocaleString('chinese', { hour12: false })+`</small>
+                                    <small class="text-primary">` + time.toLocaleString('chinese', {hour12: false}) + `</small>
                                 </div>
                             </div>
                         </li>`);
             },
             remove: function (ip) {
-                let $1 = $('.layout .content .sidebar-group .sidebar-body ul li[remote="'+ip+'"]');
+                let $1 = $('.layout .content .sidebar-group .sidebar-body ul li[remote="' + ip + '"]');
                 $1.remove();
             },
             add: function (name, lastestMsg) {
@@ -139,7 +156,7 @@ $(function () {
 
         if (message) {
             var time = new Date();
-            SohoExamle.Message.add(message, 'outgoing-message',time.toLocaleTimeString('chinese', { hour12: false }),selfName);
+            SohoExamle.Message.add(message, 'outgoing-message', time.toLocaleTimeString('chinese', {hour12: false}), selfName);
             input.val('');
         } else {
             input.focus();
