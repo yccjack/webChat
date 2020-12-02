@@ -3,17 +3,17 @@ $(function () {
      * Some examples of how to use features.
      *
      **/
-    // var headImg = new arr();
-    // headImg[0]= "man_avatar1.jpg";
-    // headImg[1]= "man_avatar2.jpg";
-    // headImg[2]= "man_avatar3.jpg";
-    // headImg[3]= "man_avatar4.jpg";
-    // headImg[4]= "man_avatar5.jpg";
-    // headImg[5]= "women_avatar1.jpg";
-    // headImg[6]= "women_avatar2.jpg";
-    // headImg[7]= "women_avatar3.jpg";
-    // headImg[8]= "women_avatar4.jpg";
-    // headImg[9]= "women_avatar5.jpg";
+        // var headImg = new arr();
+        // headImg[0]= "man_avatar1.jpg";
+        // headImg[1]= "man_avatar2.jpg";
+        // headImg[2]= "man_avatar3.jpg";
+        // headImg[3]= "man_avatar4.jpg";
+        // headImg[4]= "man_avatar5.jpg";
+        // headImg[5]= "women_avatar1.jpg";
+        // headImg[6]= "women_avatar2.jpg";
+        // headImg[7]= "women_avatar3.jpg";
+        // headImg[8]= "women_avatar4.jpg";
+        // headImg[9]= "women_avatar5.jpg";
     var selfName;
     var socket;
     if (!window.WebSocket) {
@@ -34,9 +34,9 @@ $(function () {
                 selfName = personInfo;
                 let chatList = parse.chatList;
                 for (let item in chatList) {
-                    if(chatList[item] ==personInfo){
-                        SohoExamle.List.init(chatList[item], "How are you!", item,"open-chat")
-                    }else {
+                    if (chatList[item] == personInfo) {
+                        SohoExamle.List.init(chatList[item], "How are you!", item, "open-chat")
+                    } else {
                         SohoExamle.List.init(chatList[item], "How are you!", item)
                     }
 
@@ -49,7 +49,23 @@ $(function () {
                 let chatMsg = parse.sendMsg.chatMsg;
                 let sendTime = parse.sendMsg.sendTime;
                 let name = parse.sendMsg.name;
-                SohoExamle.Message.add(chatMsg, "", sendTime, name);
+                if (name == undefined) {
+                    $('.layout .content .chat .chat-body .messages').append(`<div class="message-item ">
+                        <div class="message-avatar">
+                 
+                            <div>
+                                <h5></h5>
+                                <div class="time">` + sendTime + ` </div>
+                            </div>
+                        </div>
+                        <div class="message-content">
+                                ` + chatMsg + ` 
+                        </div>
+                    </div>`);
+                } else {
+                    SohoExamle.Message.add(chatMsg, "", sendTime, name);
+                }
+
             }
 
         };
@@ -84,7 +100,7 @@ $(function () {
 
                     type = type ? type : '';
                     message = message ? message : 'I did not understand what you said!';
-                    if(message.trim().startsWith("http://")||message.trim().startsWith("https://")){
+                    if (message.trim().startsWith("http://") || message.trim().startsWith("https://")) {
 
                     }
                     $('.layout .content .chat .chat-body .messages').append(`<div class="message-item ` + type + `">
@@ -99,8 +115,8 @@ $(function () {
                         </div>
                         <div class="message-content">
                    
-                        ` + ((message.trim().startsWith("http://")||message.trim().startsWith("https://"))?
-                            '<a href="'+message+'" style="color:#00FA9A" target="_blank">'+message+'':  message  )+`
+                        ` + ((message.trim().startsWith("http://") || message.trim().startsWith("https://")) ?
+                        '<a href="' + message + '" style="color:#00FA9A" target="_blank">' + message + '' : message) + `
                         </div>
                     </div>`);
 
